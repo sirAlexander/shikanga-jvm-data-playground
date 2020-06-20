@@ -10,6 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="26-jooq" target="12" />
       <module name="jooq-101" target="11" />
     </bytecodeTargetLevel>
   </component>
