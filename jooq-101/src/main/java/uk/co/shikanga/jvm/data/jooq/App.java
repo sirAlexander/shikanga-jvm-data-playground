@@ -1,15 +1,17 @@
 package uk.co.shikanga.jvm.data.jooq;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.jooq.DSLContext;
 import org.jooq.Result;
+import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.impl.DataSourceConnectionProvider;
 import uk.co.shikanga.jvm.data.jooq.public_.tables.daos.UsersDao;
 import uk.co.shikanga.jvm.data.jooq.public_.tables.pojos.Users;
 import uk.co.shikanga.jvm.data.jooq.public_.tables.records.UsersRecord;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import javax.sql.DataSource;
 
 import static uk.co.shikanga.jvm.data.jooq.public_.tables.Users.USERS;
 
@@ -17,24 +19,26 @@ public class App {
 
     public static void main(String[] args) {
 
-        try (Connection connection = DriverManager.getConnection(
-                "jdbc:h2:file:~/tools/mydb",
-                "admin",
-                "admin")) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl("jdbc:h2:file:~/tools/mydb");
+        hikariConfig.setUsername("admin");
+        hikariConfig.setPassword("admin");
 
-            DSL.using(connection).transaction(configuration -> {
+        DataSource dataSource = new HikariDataSource(hikariConfig);
 
-                DSLContext dslContext = DSL.using(configuration);
+        DSL.using(new DataSourceConnectionProvider(dataSource), SQLDialect.H2).transaction(configuration -> {
 
-                UsersDao usersDao = new UsersDao(configuration);
+            DSLContext dslContext = DSL.using(configuration);
 
-                Users users = new Users();
-                users.setEmail("my@friend.com");
-                usersDao.insert(users);
+            UsersDao usersDao = new UsersDao(configuration);
 
-                usersDao.fetchOne(USERS.EMAIL, "my@friend.com");
+            Users users = new Users();
+            users.setEmail("my@friend.com");
+            usersDao.insert(users);
 
-                // dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
+            usersDao.fetchOne(USERS.EMAIL, "my@friend.com");
+
+            // dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
                 /*UsersRecord usersRecord = dslContext.newRecord(USERS);
                 usersRecord.setEmail("my@friend.com");
                 usersRecord.store();*/
@@ -45,26 +49,23 @@ public class App {
                         .execute(); */
 
 
-                UsersRecord usersRecord1 = dslContext.fetchOne(USERS, USERS.EMAIL.startsWith("my@"));
-                usersRecord1.setEmail("something@else.com");
-                usersRecord1.store();
+            UsersRecord usersRecord1 = dslContext.fetchOne(USERS, USERS.EMAIL.startsWith("my@"));
+            usersRecord1.setEmail("something@else.com");
+            usersRecord1.store();
 
-                dslContext.deleteFrom(USERS)
-                        .where(USERS.EMAIL.eq("something@else.com"))
-                        .execute();
+            dslContext.deleteFrom(USERS)
+                    .where(USERS.EMAIL.eq("something@else.com"))
+                    .execute();
 
-                Result<UsersRecord> records = dslContext
-                        .selectFrom(USERS)
-                        .fetch();
-                records.forEach(App::logRecordDetails);
+            Result<UsersRecord> records = dslContext
+                    .selectFrom(USERS)
+                    .fetch();
+            records.forEach(App::logRecordDetails);
 
-                //implicit commit
+            //implicit commit
 
-            });
+        });
 
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
         // DSLContext
 
     }

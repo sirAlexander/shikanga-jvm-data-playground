@@ -42,6 +42,13 @@
             <version>1.4.200</version>
         </dependency>
 
+        <!-- Connection Pool -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+
         <!-- jOOQ -->
         <dependency>
             <groupId>org.jooq</groupId>
