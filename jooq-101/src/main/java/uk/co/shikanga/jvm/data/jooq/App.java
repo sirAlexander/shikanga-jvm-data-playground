@@ -2,6 +2,7 @@ package uk.co.shikanga.jvm.data.jooq;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
 
@@ -21,13 +22,11 @@ public class App {
                 "admin")) {
             DSLContext dslContext = DSL.using(connection);
 
-            Result<Record> records = dslContext.fetch("select id, email from users");
-            for (Record record : records) {
-                Integer id = record.get(USERS.ID);
-                String email = record.get(USERS.EMAIL);
-
-                System.out.println(record);
-            }
+            Result<Record2<Integer, String>> records = dslContext
+                    .select(USERS.ID, USERS.EMAIL)
+                    .from(USERS)
+                    .fetch();
+            records.forEach(System.out::println);
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
