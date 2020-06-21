@@ -3,6 +3,8 @@ package uk.co.shikanga.jvm.data.jooq;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
+import uk.co.shikanga.jvm.data.jooq.public_.tables.daos.UsersDao;
+import uk.co.shikanga.jvm.data.jooq.public_.tables.pojos.Users;
 import uk.co.shikanga.jvm.data.jooq.public_.tables.records.UsersRecord;
 
 import java.sql.Connection;
@@ -24,10 +26,18 @@ public class App {
 
                 DSLContext dslContext = DSL.using(configuration);
 
+                UsersDao usersDao = new UsersDao(configuration);
+
+                Users users = new Users();
+                users.setEmail("my@friend.com");
+                usersDao.insert(users);
+
+                usersDao.fetchOne(USERS.EMAIL, "my@friend.com");
+
                 // dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
-                UsersRecord usersRecord = dslContext.newRecord(USERS);
+                /*UsersRecord usersRecord = dslContext.newRecord(USERS);
                 usersRecord.setEmail("my@friend.com");
-                usersRecord.store();
+                usersRecord.store();*/
 
                 /* dslContext.update(USERS)
                         .set(USERS.EMAIL, "something@else.com")

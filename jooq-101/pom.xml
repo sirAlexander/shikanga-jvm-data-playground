@@ -124,6 +124,10 @@
                             <excludes></excludes>
                         </database>
 
+                        <generate>
+                            <daos>true</daos>
+                        </generate>
+
                         <target>
                             <!-- The destination package of your generated classes (within the destination directory) -->
                             <packageName>uk.co.shikanga.jvm.data.jooq</packageName>
