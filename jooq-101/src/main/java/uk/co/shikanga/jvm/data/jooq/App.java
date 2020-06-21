@@ -1,9 +1,9 @@
 package uk.co.shikanga.jvm.data.jooq;
 
 import org.jooq.DSLContext;
-import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
+import uk.co.shikanga.jvm.data.jooq.public_.tables.records.UsersRecord;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,22 +24,29 @@ public class App {
 
                 DSLContext dslContext = DSL.using(configuration);
 
-                dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
+                // dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
+                UsersRecord usersRecord = dslContext.newRecord(USERS);
+                usersRecord.setEmail("my@friend.com");
+                usersRecord.store();
 
-                dslContext.update(USERS)
+                /* dslContext.update(USERS)
                         .set(USERS.EMAIL, "something@else.com")
                         .where(USERS.EMAIL.startsWith("my@"))
-                        .execute();
+                        .execute(); */
+
+
+                UsersRecord usersRecord1 = dslContext.fetchOne(USERS, USERS.EMAIL.startsWith("my@"));
+                usersRecord1.setEmail("something@else.com");
+                usersRecord1.store();
 
                 dslContext.deleteFrom(USERS)
                         .where(USERS.EMAIL.eq("something@else.com"))
                         .execute();
 
-                Result<Record2<Integer, String>> records = dslContext
-                        .select(USERS.ID, USERS.EMAIL)
-                        .from(USERS)
+                Result<UsersRecord> records = dslContext
+                        .selectFrom(USERS)
                         .fetch();
-                records.forEach(System.out::println);
+                records.forEach(App::logRecordDetails);
 
                 //implicit commit
 
@@ -50,5 +57,9 @@ public class App {
         }
         // DSLContext
 
+    }
+
+    private static void logRecordDetails(UsersRecord usersRecord) {
+        System.out.println(usersRecord.getEmail() + " " + usersRecord.getId());
     }
 }
