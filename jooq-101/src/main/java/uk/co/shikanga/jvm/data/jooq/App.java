@@ -22,6 +22,13 @@ public class App {
                 "admin")) {
             DSLContext dslContext = DSL.using(connection);
 
+            dslContext.insertInto(USERS, USERS.EMAIL).values("my@friend.com").execute();
+
+            dslContext.update(USERS)
+                    .set(USERS.EMAIL, "something@else.com")
+                    .where(USERS.EMAIL.startsWith("my@"))
+                    .execute();
+
             Result<Record2<Integer, String>> records = dslContext
                     .select(USERS.ID, USERS.EMAIL)
                     .from(USERS)
